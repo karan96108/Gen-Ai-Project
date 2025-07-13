@@ -60,7 +60,7 @@ with st.sidebar:
     st.title('🖊️PDF Summarizer Chatbot')
     
     # API key is configured in code
-    openrouter_api_key = "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"
+    openrouter_api_key = "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"
     st.success('API key configured!', icon='✅')
 
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
