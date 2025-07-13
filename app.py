@@ -58,8 +58,10 @@ def extract_text_from_pdf(pdf_file):
 # OpenRouter Credentials
 with st.sidebar:
     st.title('🖊️PDF Summarizer Chatbot')
-    openrouter_api_key = "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"
-    st.success('API key loaded from code!', icon='✅')
+    
+    # API key is configured in code
+    openrouter_api_key = "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"
+    st.success('API key configured!', icon='✅')
 
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
     pdf_text = ""
@@ -79,6 +81,23 @@ client = openai.OpenAI(
     api_key=openrouter_api_key,
     base_url="https://openrouter.ai/api/v1"
 )
+
+# Test API connection
+def test_api_connection():
+    try:
+        response = client.chat.completions.create(
+            model="deepseek/deepseek-chat-v3-0324",
+            messages=[{"role": "user", "content": "Hello"}],
+            max_tokens=10,
+            extra_headers={
+                "HTTP-Referer": "https://github.com/karan96108/Gen-Ai-Project",
+                "X-Title": "PDF Summarizer Chatbot"
+            }
+        )
+        return True
+    except Exception as e:
+        st.error(f"API Connection Test Failed: {str(e)}")
+        return False
 
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
@@ -116,7 +135,7 @@ def generate_llama2_response(text, question):
             temperature=0.1,
             max_tokens=2000,
             extra_headers={
-                "HTTP-Referer": "https://github.com/0xichikawa/PDF-summarizer-chatbot-using-LLaMa2",
+                "HTTP-Referer": "https://github.com/karan96108/Gen-Ai-Project",
                 "X-Title": "PDF Summarizer Chatbot"
             }
         )
@@ -147,12 +166,13 @@ def generate_logic_question(pdf_text):
             temperature=0.2,
             max_tokens=200,
             extra_headers={
-                "HTTP-Referer": "https://github.com/0xichikawa/PDF-summarizer-chatbot-using-LLaMa2",
+                "HTTP-Referer": "https://github.com/karan96108/Gen-Ai-Project",
                 "X-Title": "PDF Summarizer Chatbot"
             }
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
+        st.error(f"API Error: {str(e)}")
         return f"Error generating question: {str(e)}"
 
 def evaluate_answer(question, user_answer, pdf_text):
@@ -170,7 +190,7 @@ def evaluate_answer(question, user_answer, pdf_text):
             temperature=0.2,
             max_tokens=200,
             extra_headers={
-                "HTTP-Referer": "https://github.com/0xichikawa/PDF-summarizer-chatbot-using-LLaMa2",
+                "HTTP-Referer": "https://github.com/karan96108/Gen-Ai-Project",
                 "X-Title": "PDF Summarizer Chatbot"
             }
         )
