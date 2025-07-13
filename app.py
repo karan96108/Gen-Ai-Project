@@ -59,9 +59,22 @@ def extract_text_from_pdf(pdf_file):
 with st.sidebar:
     st.title('🖊️PDF Summarizer Chatbot')
     
-    # API key is configured in code
-    openrouter_api_key = "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"
-    st.success('API key configured!', icon='✅')
+    # API key configuration
+    st.subheader("🔑 API Configuration")
+    default_api_key = "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"
+    user_api_key = st.text_input(
+        "Enter your OpenRouter API Key:", 
+        value=default_api_key, 
+        type="password", 
+        help="Get your API key from https://openrouter.ai/keys"
+    )
+    
+    if user_api_key:
+        openrouter_api_key = user_api_key
+        st.success('API key configured!', icon='✅')
+    else:
+        openrouter_api_key = default_api_key
+        st.info('Using default API key. You can enter your own key above.', icon='ℹ️')
 
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
     pdf_text = ""
