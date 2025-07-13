@@ -26,7 +26,7 @@ A modern Streamlit web app that lets you upload PDF files, chat with the documen
      ```
 4. **Run the app**
    ```bash
-   python -m streamlit run app.py
+    python -m streamlit run app.py
    ```
 
 ## Usage
