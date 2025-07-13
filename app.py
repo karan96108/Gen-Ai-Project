@@ -70,8 +70,8 @@ with st.sidebar:
         st.success("PDF uploaded and text extracted!")
 
     st.markdown('''
-        Developed by Ichikawa Hiroshi - 2024  
-        Visit my GitHub profile <a href="https://github.com/0xichikawa" style="color:white; background-color:#3187A2; padding:3px 5px; text-decoration:none; border-radius:5px;">here</a>
+        Developed by Karan Juneja - 2024  
+        Visit my GitHub profile <a href="https://github.com/karan96108" style="color:white; background-color:#3187A2; padding:3px 5px; text-decoration:none; border-radius:5px;">here</a>
         ''', unsafe_allow_html=True)
 
 # Configure OpenAI client for OpenRouter

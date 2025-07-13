@@ -12,8 +12,8 @@ A modern Streamlit web app that lets you upload PDF files, chat with the documen
 ## Getting Started
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/0xichikawa/PDF-summarizer-chatbot-using-LLaMa2
-   cd PDF-summarizer-chatbot-using-LLaMa2
+   git clone https://github.com/karan96108/Gen-Ai-Project.git
+   cd Gen-Ai-Project
    ```
 2. **Install dependencies**
    ```bash
@@ -27,7 +27,7 @@ A modern Streamlit web app that lets you upload PDF files, chat with the documen
      ```
 4. **Run the app**
    ```bash
-   streamlit run app.py
+   streamlit run app.py or python -m streamlit run app.py
    ```
 
 ## Usage
