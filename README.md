@@ -20,8 +20,7 @@ A modern Streamlit web app that lets you upload PDF files, chat with the documen
    pip install -r requirements.txt
    ```
 3. **Set your OpenRouter API key**
-   - Edit `app.py` and set your key for `openrouter_api_key`, or
-   - Add it to `.streamlit/secrets.toml` as:
+   - Edit `app.py` and set your key for `openrouter_api_key`,
      ```toml
      OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY"
      ```
