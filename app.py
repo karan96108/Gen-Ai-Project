@@ -62,7 +62,7 @@ with st.sidebar:
     
     # API key configuration
     st.subheader("🔑 API Configuration")
-    default_api_key = "AIzaSyAh_H1UEIuDfeL-WYpS8_8Ye_6ywrxmBCA"  # Your Gemini API key
+    default_api_key = "AIzaSyDWUSCkYgcmYxNRPCDnkWM7zZ7zIX3Y02o"  # Your Gemini API key
     user_api_key = st.text_input(
         "Enter your Google Gemini API Key:", 
         value=default_api_key, 
@@ -70,7 +70,7 @@ with st.sidebar:
         help="Get your API key from https://makersuite.google.com/app/apikey"
     )
     
-    if user_api_key and user_api_key != "AIzaSyAh_H1UEIuDfeL-WYpS8_8Ye_6ywrxmBCA":
+    if user_api_key and user_api_key != "AIzaSyDWUSCkYgcmYxNRPCDnkWM7zZ7zIX3Y02o":
         gemini_api_key = user_api_key
         st.success('Gemini API key configured!', icon='✅')
     else:
