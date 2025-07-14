@@ -22,15 +22,30 @@ A modern Streamlit web app that lets you upload PDF files, chat with the documen
 3. **Get your OpenRouter API key**
    - Visit [https://openrouter.ai/keys](https://openrouter.ai/keys)
    - Sign up and get your API key
-   - The app comes with a default API key, but you can enter your own in the sidebar
-4. **Run the app**
+4. **Set up your API key (Choose one method)**
+   
+   **Method 1: Environment Variable (Recommended)**
    ```bash
-   streamlit run app.py
+   # On Windows
+   set OPENROUTER_API_KEY=your_api_key_here
+   
+   # On Mac/Linux
+   export OPENROUTER_API_KEY=your_api_key_here
    ```
-5. **Configure API Key (Optional)**
-   - When the app starts, you'll see an "API Configuration" section in the sidebar
-   - Enter your own OpenRouter API key if you want to use your own credits
-   - If you don't enter a key, the app will use the default key
+   
+   **Method 2: .env file**
+   ```bash
+   # Copy the example file
+   cp env_example.txt .env
+   # Edit .env and add your API key
+   ```
+   
+   **Method 3: Enter in app**
+   - Run the app and enter your key in the sidebar
+5. **Run the app**
+   ```bash
+   python -m streamlit run app.py
+   ```
 
 ## Usage
 - Upload a PDF in the sidebar.
