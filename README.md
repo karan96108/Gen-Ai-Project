@@ -1,9 +1,9 @@
-# PDF Summarizer Chatbot using Google Gemini
+# 🖊️PDF and Text Summarizer Chatbot using Google Gemini
 
-A modern Streamlit web app that lets you upload PDF files, chat with the document, and challenge yourself with logic-based questions—powered by Google's Gemini AI.
+A modern Streamlit web app that lets you upload PDF or text files, chat with the document, and challenge yourself with logic-based questions—powered by Google's Gemini AI.
 
 ## Features
-- **PDF Upload & Parsing**: Instantly extract text from your PDFs.
+- **PDF & Text Upload & Parsing**: Instantly extract and summarize text from your PDFs or text files.
 - **Conversational Chatbot**: Ask questions about your document and get answers with references to the original text.
 - **Follow-up Memory**: The chatbot remembers your previous questions for smarter, context-aware answers.
 - **Challenge Me**: Generate logic-based questions from your document, answer them, and get instant feedback with references.

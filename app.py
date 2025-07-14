@@ -4,7 +4,7 @@ import PyPDF2
 import os
 import time
 
-st.set_page_config(page_title="🖊️PDF Summarizer Chatbot")
+st.set_page_config(page_title="🖊️PDF and Text Summarizer Chatbot")
 
 # Toggle light and dark mode themes
 ms = st.session_state
@@ -58,7 +58,7 @@ def extract_text_from_pdf(pdf_file):
 
 # Gemini API Credentials
 with st.sidebar:
-    st.title('🖊️PDF Summarizer Chatbot')
+    st.title('🖊️PDF and Text Summarizer Chatbot')
     
     # API key configuration
     st.subheader("🔑 API Configuration")
@@ -77,20 +77,25 @@ with st.sidebar:
         gemini_api_key = default_api_key
         st.success('Using default Gemini API key!', icon='✅')
     
-    # Test API connection
-    if st.button("Test API Connection"):
-        if test_api_connection():
-            st.success("API connection successful!")
+    uploaded_file = st.file_uploader("Upload a PDF or Text file", type=["pdf", "txt"])
+    if 'uploaded_file' not in st.session_state:
+        st.session_state.uploaded_file = None
+    if 'pdf_text' not in st.session_state:
+        st.session_state.pdf_text = ""
+    if uploaded_file is not None and uploaded_file != st.session_state.uploaded_file:
+        if uploaded_file.type == "application/pdf" or uploaded_file.name.lower().endswith(".pdf"):
+            with st.spinner("Extracting text from PDF..."):
+                st.session_state.pdf_text = extract_text_from_pdf(uploaded_file)
+            st.success("PDF uploaded and text extracted!")
+        elif uploaded_file.type == "text/plain" or uploaded_file.name.lower().endswith(".txt"):
+            with st.spinner("Reading text file..."):
+                st.session_state.pdf_text = uploaded_file.read().decode("utf-8")
+            st.success("Text file uploaded and read!")
         else:
-            st.error("API connection failed. Please check your API key.")
-
-    uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
-    pdf_text = ""
-    
-    if uploaded_file:
-        with st.spinner("Extracting text from PDF..."):
-            pdf_text = extract_text_from_pdf(uploaded_file)
-        st.success("PDF uploaded and text extracted!")
+            st.session_state.pdf_text = ""
+            st.warning("Unsupported file type.")
+        st.session_state.uploaded_file = uploaded_file
+    pdf_text = st.session_state.pdf_text
 
     st.markdown('''
         Developed by Karan Juneja - 2024  
@@ -143,7 +148,7 @@ def test_api_connection():
         return False
 
 # Store LLM generated responses
-if "messages" not in st.session_state.keys():
+if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Upload a PDF file from the sidebar to get started."}]
 
 # Display or clear chat messages
@@ -153,7 +158,6 @@ for message in st.session_state.messages:
 
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "Upload a PDF file from the sidebar to get started."}]
-    st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 
 def generate_gemini_response(text, question):
@@ -255,8 +259,7 @@ def evaluate_answer(question, user_answer, pdf_text):
 
 # Generate a new response if a PDF is uploaded
 if pdf_text:
-    st.text_input("Enter your question:", key="chat_input")
-    st.button("Send", key="send_btn", on_click=send_message, args=(pdf_text,))
+    user_input = st.text_input("Enter your question:", key="chat_input", on_change=send_message, args=(pdf_text,))
 
     # Challenge Me logic
     if "challenge_question" not in st.session_state:
