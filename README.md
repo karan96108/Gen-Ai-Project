@@ -41,3 +41,7 @@ A modern Streamlit web app that lets you upload PDF or text files, chat with the
 - **GitHub:** [karan96108](https://github.com/karan96108)
 - **Portfolio:** [karanjuneja.com](https://karanjuneja.com)
 - **Email:** karan@karanjuneja.com
+
+# Demo
+
+Watch a video demonstration of this app: [YouTube Demo](https://youtu.be/5BofhiIIaqs)
