@@ -1,6 +1,6 @@
-# PDF Summarizer Chatbot using LLaMa2 & OpenRouter
+# PDF Summarizer Chatbot using Google Gemini
 
-A modern Streamlit web app that lets you upload PDF files, chat with the document, and challenge yourself with logic-based questions—powered by LLaMa2 via OpenRouter.
+A modern Streamlit web app that lets you upload PDF files, chat with the document, and challenge yourself with logic-based questions—powered by Google's Gemini AI.
 
 ## Features
 - **PDF Upload & Parsing**: Instantly extract text from your PDFs.
@@ -19,18 +19,18 @@ A modern Streamlit web app that lets you upload PDF files, chat with the documen
    ```bash
    pip install -r requirements.txt
    ```
-3. **Get your OpenRouter API key**
-   - Visit [https://openrouter.ai/keys](https://openrouter.ai/keys)
+3. **Get your Google Gemini API key**
+   - Visit [https://makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey)
    - Sign up and get your API key
-   - The app comes with a default API key, but you can enter your own in the sidebar
+   - You need to enter your own API key in the sidebar to use the app
 4. **Run the app**
    ```bash
      python -m streamlit run app.py
    ```
-5. **Configure API Key (Optional)**
+5. **Configure API Key (Required)**
    - When the app starts, you'll see an "API Configuration" section in the sidebar
-   - Enter your own OpenRouter API key if you want to use your own credits
-   - If you don't enter a key, the app will use the default key
+   - Enter your Google Gemini API key to use the app
+   - The app requires a valid Gemini API key to function
 
 ## Usage
 - Upload a PDF in the sidebar.

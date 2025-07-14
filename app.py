@@ -1,7 +1,8 @@
 import streamlit as st
-import openai
+import google.generativeai as genai
 import PyPDF2
 import os
+import time
 
 st.set_page_config(page_title="🖊️PDF Summarizer Chatbot")
 
@@ -55,26 +56,33 @@ def extract_text_from_pdf(pdf_file):
     return text
 
 
-# OpenRouter Credentials
+# Gemini API Credentials
 with st.sidebar:
     st.title('🖊️PDF Summarizer Chatbot')
     
     # API key configuration
     st.subheader("🔑 API Configuration")
-    default_api_key = "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"
+    default_api_key = "AIzaSyAnGIJrK3Vph95Yb7LTkZsE6FyPWjpMtw4"  # Your Gemini API key
     user_api_key = st.text_input(
-        "Enter your OpenRouter API Key:", 
+        "Enter your Google Gemini API Key:", 
         value=default_api_key, 
         type="password", 
-        help="Get your API key from https://openrouter.ai/keys"
+        help="Get your API key from https://makersuite.google.com/app/apikey"
     )
     
-    if user_api_key:
-        openrouter_api_key = user_api_key
-        st.success('API key configured!', icon='✅')
+    if user_api_key and user_api_key != "AIzaSyAnGIJrK3Vph95Yb7LTkZsE6FyPWjpMtw4":
+        gemini_api_key = user_api_key
+        st.success('Gemini API key configured!', icon='✅')
     else:
-        openrouter_api_key = default_api_key
-        st.info('Using default API key. You can enter your own key above.', icon='ℹ️')
+        gemini_api_key = default_api_key
+        st.success('Using default Gemini API key!', icon='✅')
+    
+    # Test API connection
+    if st.button("Test API Connection"):
+        if test_api_connection():
+            st.success("API connection successful!")
+        else:
+            st.error("API connection failed. Please check your API key.")
 
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
     pdf_text = ""
@@ -89,24 +97,46 @@ with st.sidebar:
         Visit my GitHub profile <a href="https://github.com/karan96108" style="color:white; background-color:#3187A2; padding:3px 5px; text-decoration:none; border-radius:5px;">here</a>
         ''', unsafe_allow_html=True)
 
-# Configure OpenAI client for OpenRouter
-client = openai.OpenAI(
-    api_key=openrouter_api_key,
-    base_url="https://openrouter.ai/api/v1"
-)
+# Configure Gemini client and get model
+genai.configure(api_key=gemini_api_key)
+
+# List available models and use the first available one
+def get_available_model():
+    try:
+        models = genai.list_models()
+        # Preferred models in order of preference
+        preferred_models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro']
+        
+        for preferred_model in preferred_models:
+            for model in models:
+                if model.name == preferred_model and 'generateContent' in model.supported_generation_methods:
+                    return model.name
+        
+        # If no preferred model found, use the first available one
+        for model in models:
+            if 'generateContent' in model.supported_generation_methods:
+                return model.name
+                
+        return 'gemini-1.5-flash'  # fallback
+    except:
+        return 'gemini-1.5-flash'  # fallback
+
+model_name = get_available_model()
+model = genai.GenerativeModel(model_name)
+
+# Show which model is being used in sidebar
+with st.sidebar:
+    st.info(f"Using model: {model_name}", icon='🤖')
 
 # Test API connection
 def test_api_connection():
     try:
-        response = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324",
-            messages=[{"role": "user", "content": "Hello"}],
-            max_tokens=10,
-            extra_headers={
-                "HTTP-Referer": "https://github.com/karan96108/Gen-Ai-Project",
-                "X-Title": "PDF Summarizer Chatbot"
-            }
-        )
+        # List available models first
+        models = genai.list_models()
+        st.write("Available models:", [model.name for model in models])
+        st.write(f"Using model: {model_name}")
+        
+        response = model.generate_content("Hello")
         return True
     except Exception as e:
         st.error(f"API Connection Test Failed: {str(e)}")
@@ -126,35 +156,46 @@ def clear_chat_history():
     st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 
-def generate_llama2_response(text, question):
+def generate_gemini_response(text, question):
     # Build conversation memory (last 5 turns)
     history_messages = []
     for msg in st.session_state.messages[-10:]:  # up to last 5 user+assistant pairs
         if msg["role"] in ("user", "assistant"):
-            history_messages.append({"role": msg["role"], "content": msg["content"]})
-    prompt = f"Here is the context:\n\n{text[:5000]}\n\nNow answer this question:\n{question}"
-    try:
-        response = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324",
-            messages=[
-                {"role": "system", "content": (
-                    "You are a helpful assistant that answers questions based on the provided context. "
-                    "For every answer, justify your response by referencing the original document (e.g., 'Paragraph 3 of Section 1'). "
-                    "Use the previous conversation as memory to handle follow-up questions."
-                )},
-                *history_messages,
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.1,
-            max_tokens=2000,
-            extra_headers={
-                "HTTP-Referer": "https://github.com/karan96108/Gen-Ai-Project",
-                "X-Title": "PDF Summarizer Chatbot"
-            }
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"Error generating response: {str(e)}"
+            # Convert to Gemini format
+            if msg["role"] == "user":
+                history_messages.append({"role": "user", "parts": [{"text": msg["content"]}]})
+            else:
+                history_messages.append({"role": "model", "parts": [{"text": msg["content"]}]})
+    
+    # Create conversation history for Gemini
+    chat = model.start_chat(history=history_messages)
+    
+    system_prompt = (
+        "You are a helpful assistant that answers questions based on the provided context. "
+        "For every answer, justify your response by referencing the original document (e.g., 'Paragraph 3 of Section 1'). "
+        "Use the previous conversation as memory to handle follow-up questions."
+    )
+    
+    prompt = f"{system_prompt}\n\nHere is the context:\n\n{text[:5000]}\n\nNow answer this question:\n{question}"
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = chat.send_message(prompt)
+            return response.text
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str and "quota" in error_str.lower():
+                if attempt < max_retries - 1:
+                    st.warning(f"Rate limit reached. Waiting 60 seconds before retry {attempt + 1}/{max_retries}...")
+                    time.sleep(60)
+                    continue
+                else:
+                    return "Sorry, the API rate limit has been exceeded. Please try again later or upgrade your Gemini API plan."
+            else:
+                return f"Error generating response: {error_str}"
+    
+    return "Failed to generate response after multiple attempts."
 
 
 def send_message(pdf_text):
@@ -162,54 +203,55 @@ def send_message(pdf_text):
     if question:
         user_message = {"role": "user", "content": question}
         st.session_state.messages.append(user_message)
-        response = generate_llama2_response(pdf_text, question)
+        response = generate_gemini_response(pdf_text, question)
         assistant_message = {"role": "assistant", "content": response}
         st.session_state.messages.append(assistant_message)
         st.session_state["chat_input"] = ""  # Safe to clear here
 
 def generate_logic_question(pdf_text):
     prompt = f"Read the following document and generate ONE logic-based question that tests understanding of its content. Only output the question, nothing else.\n\nDocument:\n{pdf_text[:5000]}"
-    try:
-        response = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that generates logic-based questions from documents."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.2,
-            max_tokens=200,
-            extra_headers={
-                "HTTP-Referer": "https://github.com/karan96108/Gen-Ai-Project",
-                "X-Title": "PDF Summarizer Chatbot"
-            }
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        st.error(f"API Error: {str(e)}")
-        return f"Error generating question: {str(e)}"
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str and "quota" in error_str.lower():
+                if attempt < max_retries - 1:
+                    st.warning(f"Rate limit reached. Waiting 60 seconds before retry {attempt + 1}/{max_retries}...")
+                    time.sleep(60)
+                    continue
+                else:
+                    return "Sorry, the API rate limit has been exceeded. Please try again later or upgrade your Gemini API plan."
+            else:
+                st.error(f"API Error: {error_str}")
+                return f"Error generating question: {error_str}"
+    
+    return "Failed to generate question after multiple attempts."
 
 def evaluate_answer(question, user_answer, pdf_text):
     prompt = f"Document:\n{pdf_text[:5000]}\n\nQuestion: {question}\nUser's Answer: {user_answer}\n\nEvaluate the user's answer for correctness and provide brief feedback."
-    try:
-        response = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324",
-            messages=[
-                {"role": "system", "content": (
-                    "You are a helpful assistant that evaluates answers to logic-based questions from documents. "
-                    "For every evaluation, justify your feedback by referencing the original document (e.g., 'Paragraph 3 of Section 1')."
-                )},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.2,
-            max_tokens=200,
-            extra_headers={
-                "HTTP-Referer": "https://github.com/karan96108/Gen-Ai-Project",
-                "X-Title": "PDF Summarizer Chatbot"
-            }
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"Error evaluating answer: {str(e)}"
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str and "quota" in error_str.lower():
+                if attempt < max_retries - 1:
+                    st.warning(f"Rate limit reached. Waiting 60 seconds before retry {attempt + 1}/{max_retries}...")
+                    time.sleep(60)
+                    continue
+                else:
+                    return "Sorry, the API rate limit has been exceeded. Please try again later or upgrade your Gemini API plan."
+            else:
+                return f"Error evaluating answer: {error_str}"
+    
+    return "Failed to evaluate answer after multiple attempts."
 
 # Generate a new response if a PDF is uploaded
 if pdf_text:
