@@ -45,3 +45,7 @@ A modern Streamlit web app that lets you upload PDF or text files, chat with the
 # Demo
 
 Watch a video demonstration of this app: [YouTube Demo](https://youtu.be/5BofhiIIaqs)
+
+# Live Demo
+
+Try the app live: [gen-ai-project-euydtcimo3wwwvfjfd4se2.streamlit.app](https://gen-ai-project-euydtcimo3wwwvfjfd4se2.streamlit.app/)
