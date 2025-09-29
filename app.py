@@ -142,7 +142,7 @@ def get_available_model():
     except:
         return "gemini-1.5-flash-latest"
 
-model_name = "gemini-1.5-flash-latest"
+model_name = get_available_model()
 model = genai.GenerativeModel(model_name)
 
 # Show which model is being used in sidebar
