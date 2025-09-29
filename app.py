@@ -122,6 +122,8 @@ def get_available_model():
 
         # Preferred models in order of preference
         preferred_models = [
+            "gemini-2.5-flash-latest",
+            "gemini-2.5-flash",
             "gemini-1.5-flash-latest",
             "gemini-1.5-pro-latest",
             "gemini-1.5-flash",
