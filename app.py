@@ -62,7 +62,7 @@ with st.sidebar:
     
     # API key configuration
     st.subheader("🔑 API Configuration")
-    default_api_key = "AIzaSyDWUSCkYgcmYxNRPCDnkWM7zZ7zIX3Y02o"  # Your Gemini API key
+    default_api_key = "AIzaSyAyTtleDxudyfh53okK6yn9GvDyS7cd-3c"  # Your Gemini API key
     user_api_key = st.text_input(
         "Enter your Google Gemini API Key:", 
         value=default_api_key, 
@@ -109,24 +109,40 @@ genai.configure(api_key=gemini_api_key)
 def get_available_model():
     try:
         models = genai.list_models()
-        # Preferred models in order of preference
-        preferred_models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro']
-        
-        for preferred_model in preferred_models:
-            for model in models:
-                if model.name == preferred_model and 'generateContent' in model.supported_generation_methods:
-                    return model.name
-        
-        # If no preferred model found, use the first available one
-        for model in models:
-            if 'generateContent' in model.supported_generation_methods:
-                return model.name
-                
-        return 'gemini-1.5-flash'  # fallback
-    except:
-        return 'gemini-1.5-flash'  # fallback
+        # Build a lookup of available short model names that support generateContent
+        available = []
+        for m in models:
+            try:
+                short_name = m.name.split("/")[-1] if hasattr(m, "name") else str(m)
+                methods = set(getattr(m, "supported_generation_methods", []) or [])
+                if "generateContent" in methods:
+                    available.append(short_name)
+            except Exception:
+                continue
 
-model_name = get_available_model()
+        # Preferred models in order of preference
+        preferred_models = [
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
+            "gemini-1.0-pro",
+        ]
+
+        for pref in preferred_models:
+            if pref in available:
+                return pref
+
+        # If no preferred model found, return first available supporting generateContent
+        if available:
+            return available[0]
+
+        # Hard fallback
+        return "gemini-1.5-flash-latest"
+    except:
+        return "gemini-1.5-flash-latest"
+
+model_name = "gemini-1.5-flash-latest"
 model = genai.GenerativeModel(model_name)
 
 # Show which model is being used in sidebar
