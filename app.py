@@ -104,12 +104,12 @@ with st.sidebar:
 
 # Configure Gemini client and get model
 genai.configure(api_key=gemini_api_key)
-
+# made by karan juneja
 # List available models and use the first available one
 def get_available_model():
     try:
         models = genai.list_models()
-        # Build a lookup of available short model names that support generateContent
+        # Build a Lookup of available short model names that support generateContent
         available = []
         for m in models:
             try:
